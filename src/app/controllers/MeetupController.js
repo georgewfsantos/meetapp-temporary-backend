@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import { isBefore, parseISO } from 'date-fns';
+
 import Meetup from '../models/Meetup';
 import File from '../models/File';
 import User from '../models/User';
@@ -8,7 +9,7 @@ class MeetupController {
   async index(req, res) {
     const meetups = await Meetup.findAll({
       where: { user_id: req.userId },
-      attributes: ['id', 'title', 'description', 'location', 'date'],
+      attributes: ['id', 'title', 'description', 'location', 'date', 'past'],
       include: [
         {
           model: File,
@@ -55,8 +56,8 @@ class MeetupController {
 
   async update(req, res) {
     const schema = Yup.object().shape({
-      title: Yup.string(),
       file_id: Yup.number(),
+      title: Yup.string(),
       description: Yup.string(),
       location: Yup.string(),
       date: Yup.date(),

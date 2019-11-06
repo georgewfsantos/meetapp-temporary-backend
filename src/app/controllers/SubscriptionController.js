@@ -21,12 +21,16 @@ class SubscriptionController {
               [Op.gt]: new Date(),
             },
           },
-          attributes: ['id', 'title', 'description', 'location', 'date'],
+          attributes: ['id', 'title', 'description', 'location', 'date', 'past'],
           required: true,
           include: [
             {
               model: File,
               attributes: ['id', 'path', 'url'],
+            },
+            {
+              model: User,
+              attributes: ['id', 'name', 'email'],
             },
           ],
         },
@@ -97,6 +101,25 @@ class SubscriptionController {
     });
 
     return res.json(subscription);
+  }
+
+  async delete(req, res) {
+    const subscription = await Subscription.findByPk(req.params.id);
+    if (!subscription) {
+      return res.status(400).json({
+        error:
+          'Subscription was not found.Please check if the information is correct',
+      });
+    }
+    if (subscription.user_id !== req.userId) {
+      return res.status(401).json({
+        error: "You don't have permission to cancel this subscription.",
+      });
+    }
+
+    await subscription.destroy();
+
+    return res.send({ message: 'Subscription successfully deleted' });
   }
 }
 
